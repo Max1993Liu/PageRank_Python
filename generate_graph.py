@@ -6,16 +6,11 @@ The file should be in the form of: page1 -> page2, specifying a link from page1 
 from pagerank import *
 
 
-
-DATA_FILE = './data.txt'
-
-
 def generate_graph(file):
-
 
 	graph = Graph(set(), set())
 
-	with open(DATA_FILE, 'r') as f:
+	with open(file, 'r') as f:
 		for line in f:
 			line = line.split('->')
 			if len(line) != 2:

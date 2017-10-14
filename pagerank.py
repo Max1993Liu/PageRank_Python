@@ -1,6 +1,6 @@
 import os
 import sys
-
+from generate_graph import *
 
 class Page:
 
@@ -144,6 +144,10 @@ class Graph:
 			self.get_edge(edge.id)
 
 
+	def pagerank(self, 
+		min_weight_diff=0.2, 
+		max_iter=10, 
+		include_teleport=False):
 
 
 
@@ -151,3 +155,12 @@ def _hasattrs(obj, attrs):
 	if not all([hasattr(obj, attr) for attr in attrs]):
 		raise ValueError('The object doesn\'t implement all the attributes: {}'.format(attrs))
 	return obj
+
+
+# if __name__ == '__main__':
+
+# 	DATA_FILE = './data.txt'
+
+# 	graph = generate_graph(DATA_FILE)
+
+# 	print(graph._nodes)
