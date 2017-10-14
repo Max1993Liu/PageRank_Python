@@ -20,11 +20,11 @@ def generate_graph(file):
 			from_page_id, to_page_id = from_page_id.strip(), to_page_id.strip()
 
 			from_page, to_page = Page(from_page_id), Page(to_page_id)
-			edge = Link(from_page, to_page)
 
 			#add node and corresponding edge into the graph
 			from_page = graph.add_node(from_page)
 			to_page = graph.add_node(to_page)
+			edge = Link(from_page, to_page)
 			edge = graph.add_edge(edge)
 
 			#configuring the in and out link for nodes and weight for edge

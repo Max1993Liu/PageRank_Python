@@ -4,10 +4,9 @@ from generate_graph import *
 
 class Page:
 
-
 	def __init__(self, p_id):
 		self._id = str(p_id)
-		self.weight = 1
+		self.weight = 1.0
 		self.n_outlink = 0
 		self.n_inlink = 0
 		self.outlinks = set()
@@ -76,13 +75,16 @@ class BaseLink:
 
 	@property
 	def id(self):
-		return self._from.id + '-' + self._other.id
+		return self._from.id + '-' + self._to.id
 
 	def __eq__(self, other):
 		return self.id == other.id
 
 	def __hash__(self):
-		return hash(self._from.id + self._to.id)
+		return hash(self.id)
+
+	def __repr__(self):
+		return '[{}-{}, weight:{}]'.format(self._from.id, self._to.id, self.weight)
 
 
 class Link(BaseLink):
@@ -103,13 +105,14 @@ class Link(BaseLink):
 		return abs(old_weight - self.weight)
 
 
-
 class Graph:
 
 	def __init__(self, nodes, edges):
 		"""Both nodes and edges are set"""
 		self._nodes = nodes
 		self._edges = edges
+		self.n_nodes = len(nodes)
+		self.n_edges = len(edges)
 
 	def get_node(self, n_id):
 		# TODO: need a better structure
@@ -131,25 +134,63 @@ class Graph:
 		"""if the node already exists return exising node"""
 		if node not in self._nodes:
 			self._nodes.add(node)
+			self.n_nodes += 1
 			return node
 		else:
 			return self.get_node(node.id)
 
 	def add_edge(self, edge):
-		"""if the edge already exists return existing edge"""
+		"""if the edge already exists update the information"""
 		if not edge in self._edges:
 			self._edges.add(edge)
+			self.n_edges += 1
 			return edge
 		else:
-			self.get_edge(edge.id)
+			return self.get_edge(edge.id)
 
 
 	def pagerank(self, 
-		min_weight_diff=0.2, 
+		min_weight_diff=0.1, 
 		max_iter=10, 
-		include_teleport=False):
+		include_teleport=False,
+		verbose=True):
+		"""
+		Params:
+			max_iter: maximum number of iterations
+			min_weight_diff: minimum value of average weight difference for all nodes
+				for each iteration
+			include_teleport: whether allow page travel not folling the outlink
+		"""
+		for i in range(max_iter):
+			total_diff = 0
+			
+			#update weight for all edges
+			for edge in self._edges:
+				edge.update_weight()
+				
+			#update weight for all nodes
+			for node in self._nodes:
+				old_weight = node.weight
+				node.weight = sum([l.weight for l in node.inlinks])
+				total_diff += abs(old_weight - node.weight)
 
+			if verbose:
+				print('Average weight change at Iteration {}: {}'.format(i+1, total_diff/self.n_nodes))
 
+			if total_diff / self.n_nodes <= min_weight_diff:
+				print('Meet early stopping criteria.')
+				break
+		return self.nodes
+
+	@property
+	def nodes(self):
+		return self._nodes
+
+	@property
+	def edges(self):
+		return self._edges
+
+#----------------- helper functions -------------------------
 
 def _hasattrs(obj, attrs):
 	if not all([hasattr(obj, attr) for attr in attrs]):
@@ -157,10 +198,12 @@ def _hasattrs(obj, attrs):
 	return obj
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-# 	DATA_FILE = './data.txt'
+	DATA_FILE = './data.txt'
 
-# 	graph = generate_graph(DATA_FILE)
+	graph = generate_graph(DATA_FILE)
 
-# 	print(graph._nodes)
+	print(graph._nodes)
+	print(graph.pagerank())
+	
