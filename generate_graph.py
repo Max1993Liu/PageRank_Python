@@ -33,4 +33,3 @@ def generate_graph(file):
 			edge.update_weight()
 
 	return graph
-

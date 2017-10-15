@@ -63,7 +63,7 @@ class BaseLink:
 		self.weight = 0
 
 	def update_weight(self):
-		raise NotImplementedError('Base classes should implement this method.')
+		raise NotImplementedError('Subclasses should implement this method.')
 
 	@property
 	def start(self):
@@ -153,13 +153,15 @@ class Graph:
 		min_weight_diff=0.1, 
 		max_iter=10, 
 		include_teleport=False,
+		return_sorted=True,
 		verbose=True):
 		"""
 		Params:
-			max_iter: maximum number of iterations
-			min_weight_diff: minimum value of average weight difference for all nodes
+			max_iter - maximum number of iterations
+			min_weight_diff - minimum value of average weight difference for all nodes
 				for each iteration
-			include_teleport: whether allow page travel not folling the outlink
+			include_teleport - whether allow page travel not folling the outlink
+			r
 		"""
 		for i in range(max_iter):
 			total_diff = 0
@@ -180,7 +182,11 @@ class Graph:
 			if total_diff / self.n_nodes <= min_weight_diff:
 				print('Meet early stopping criteria.')
 				break
-		return self.nodes
+		
+		if return_sorted:
+			return sorted(self.nodes, key=lambda n: -n.weight)
+		else:
+			return self.nodes
 
 	@property
 	def nodes(self):
@@ -200,10 +206,9 @@ def _hasattrs(obj, attrs):
 
 if __name__ == '__main__':
 
-	DATA_FILE = './data.txt'
+	DATA_FILE = './random_data.txt'
 
 	graph = generate_graph(DATA_FILE)
 
-	print(graph._nodes)
 	print(graph.pagerank())
 	
